@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Secret CFW | سيكرت</title>
+
+  <!--
+    ملاحظة أمان: إذا أردت إرسال التقديم إلى ديسكورد عبر Webhook،
+    استبدل قيمة webhookURL في الأسفل برابط الويبهوك الخاص بك.
+    لا تنشر رابط الويبهوك علنًا.
+  -->
+
+  <style>
+    :root{
+      --bg1: #001f33; /* غامق */
+      --bg2: #002b36;
+      --accent-a: #00e5ff; /* أزرق سماوي */
+      --accent-b: #00ff99; /* أخضر فسفوري */
+      --card-bg: rgba(255,255,255,0.03);
+      --glass: rgba(255,255,255,0.04);
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family: 'Cairo', sans-serif;direction:rtl}
+    body{
+      background: linear-gradient(135deg,var(--bg1),var(--bg2));
+      color:#e9fbff;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      overflow-y:auto;
+    }
+
+    /* animated gradient overlay */
+    .gradient-anim {
+      position:fixed;inset:0;z-index:0;pointer-events:none;
+      background: linear-gradient(120deg, rgba(0,230,255,0.06), rgba(0,255,153,0.06), rgba(0,230,255,0.03));
+      mix-blend-mode: overlay;
+      animation: moveBg 12s linear infinite;
+    }
+    @keyframes moveBg{
+      0%{background-position:0% 50%}
+      50%{background-position:100% 50%}
+      100%{background-position:0% 50%}
+    }
+
+    header{
+      position:sticky;top:0;z-index:1200;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 22px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      border-bottom:1px solid rgba(255,255,255,0.03);
+      backdrop-filter: blur(6px);
+    }
+
+    .brand {
+      display:flex;align-items:center;gap:12px;
+    }
+    .brand img{width:56px;height:56px;border-radius:10px;object-fit:cover;box-shadow:0 6px 24px rgba(0,0,0,0.6)}
+    .brand h1{font-size:18px;margin:0;color:var(--accent-a);text-shadow:0 0 12px rgba(0,229,255,0.08)}
+    nav{display:flex;gap:18px;align-items:center}
+    nav a{
+      color:rgba(255,255,255,0.9);text-decoration:none;padding:8px 12px;border-radius:8px;
+      transition:all .18s; font-weight:600;
+    }
+    nav a:hover{background:var(--card-bg); color:var(--accent-a); box-shadow:0 6px 20px rgba(0,0,0,0.5)}
+
+    main{position:relative;z-index:10;padding:36px 18px 60px;max-width:1100px;margin:0 auto}
+
+    /* sections layout */
+    .section{display:none;min-height:calc(100vh - 120px);padding-top:20px}
+    .section.active{display:block}
+
+    /* Home */
+    .hero{
+      display:flex;flex-direction:column;align-items:center;gap:14px;
+      padding:40px 18px;border-radius:14px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    }
+    .hero img{width:180px;border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+    .hero h2{margin:0;font-size:34px;color:var(--accent-a);text-shadow:0 0 18px rgba(0,229,255,0.06)}
+    .hero p{max-width:800px;text-align:center;color:#dff9ff;opacity:.95}
+
+    .cta-group{display:flex;gap:12px;margin-top:14px}
+    .btn{
+      padding:12px 20px;border-radius:12px;border:none;cursor:pointer;font-weight:700;
+      background:linear-gradient(90deg,var(--accent-a),var(--accent-b));
+      color:#001014;box-shadow:0 8px 30px rgba(0,0,0,0.6);
+      transition:transform .16s ease, box-shadow .16s;
+    }
+    .btn:hover{transform:translateY(-4px)}
+
+    /* Rules (accordion) */
+    .rules-wrap{margin-top:30px}
+    .rule{
+      background:var(--card-bg);border:1px solid rgba(0,255,153,0.06);
+      margin-bottom:12px;border-radius:10px;overflow:hidden;transition:box-shadow .18s;
+    }
+    .rule .head{
+      display:flex;align-items:center;justify-content:space-between;padding:14px 16px;cursor:pointer;
+      background:linear-gradient(90deg, rgba(0,0,0,0.02), rgba(255,255,255,0.01));
+    }
+    .rule .head .title{font-weight:700;color:var(--accent-a)}
+    .rule .head .plus{
+      width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+      background:rgba(0,255,153,0.06);color:var(--accent-a);font-weight:800;
+      transition:transform .18s;
+    }
+    .rule .content{display:none;padding:14px 16px;color:#dfeff2;line-height:1.8;border-top:1px solid rgba(255,255,255,0.02)}
+    .rule.open .content{display:block}
+    .rule.open .plus{transform:rotate(45deg)}
+
+    /* Apply form */
+    .apply-box{max-width:820px;margin:18px auto;padding:20px;border-radius:12px;background:var(--card-bg);box-shadow:0 12px 40px rgba(0,0,0,0.6)}
+    .field{display:flex;flex-direction:column;margin-bottom:12px;text-align:right}
+    label{font-weight:700;color:var(--accent-b);margin-bottom:6px}
+    input[type="text"],input[type="number"],textarea,select{
+      background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.03);padding:12px;border-radius:8px;color:#fff
+    }
+    textarea{min-height:120px;resize:vertical}
+    .small{font-size:13px;color:#bfeee0;margin-top:6px}
+
+    /* footer */
+    footer{margin-top:40px;text-align:center;padding:18px;color:rgba(255,255,255,0.6)}
+
+    /* responsive */
+    @media (max-width:720px){
+      .hero h2{font-size:24px}
+      .hero img{width:140px}
+      nav{gap:10px}
+      .cta-group{flex-direction:column;width:100%}
+      .btn{width:100%}
+      header{padding:12px}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="gradient-anim"></div>
+
+  <header>
+    <div class="brand">
+      <img id="logoImg" src="logo.png" alt="Secret CFW Logo">
+      <div>
+        <h1>Secret CFW | سيكرت</h1>
+        <div style="font-size:13px;color:rgba(255,255,255,0.6)">FiveM Roleplay Server</div>
+      </div>
+    </div> 
+
+    <nav>
+      <a href="#" onclick="openSection('home')">الرئيسية</a>
+      <a href="#" onclick="openSection('rules')">القوانين</a>
+      <a href="#" onclick="openSection('apply')">التقديم</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="section active">
+      <div class="hero">
+        <img src="logo.png" alt="logo">
+        <h2>مرحبا بكم في Secret CFW</h2>
+        <p>حياكم الله في سيرفر سيكرت  المتخصص في الرول بلاي نحاول جاهدين تقديم افضل تجربه للرول بلاي في الشرق الاوسط انضم الينا الان و عيش حياتك كما تريد</p>
+        <div class="cta-group">
+          <button class="btn" onclick="openSection('apply')">✅ قدّم الآن</button>
+          <button class="btn" onclick="openSection('rules')">📜 اطلع على القوانين</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RULES -->
+    <section id="rules" class="section">
+      <h2>قوانين السيرفر</h2>
+
+      <div class="rules-wrap">
+        <!-- We'll include the same sections you wanted (NLR, PowerGaming, ...) with short texts. -->
+        <div class="rule" data-key="nlr">
+          <div class="head"><div class="title">قوانين الحياة الجديدة - NLR</div><div class="plus">+</div></div>
+          <div class="content">يفي حال اغمائك بشكل كامل لا يمكنك الكلام او الحركة او فعل أي شيء في حال تم اسقاطك من قبل شخص و تم انعاشك من قبل مسعفين تستطيع تذكر جميع الاحداث في حال تم اعطائك ابرة "في العيادة الخاصة" من احد اللاعبين اللذين لديهم عداوة معك لا تستطيع تذكر أي شي حصل لك ( منها العداوات او الاحداث ) الـNLR أمر أساسي للحفاظ على المتعة الواقعية.</div>
+        </div>
+
+        <div class="rule" data-key="power">
+          <div class="head"><div class="title">الباور قيمينق - PowerGaming</div><div class="plus">+</div></div>
+          <div class="content">ياستخدام الوسائل غير موجودة في اللعبة للحصول على ميزة أو عدم التوافق مع العالم بطريقة معقولة وبشكل واقعي ومنها التالي وهناك الكثير من المواقف والامثلة التي تندرج تحت Powergaming</div>
+        </div>
+
+        <div class="rule" data-key="nvl">
+          <div class="head"><div class="title">الخوف على الحياة - NVL</div><div class="plus">+</div></div>
+          <div class="content">عدم الخوف بشكل واقعي على حياتك عندما تتعرض للتهديد بالأسلحة أو بأذى شديد من وسائل أخرى يعتبر الخوف على الحياة شي اساسي ومهم جدا مثال : اذا كان هناك اداة تعرض حياتك للخطر</div>
+        </div>
+
+        <div class="rule" data-key="meta">
+          <div class="head"><div class="title">الميتا قيمينق - Metagaming</div><div class="plus">+</div></div>
+          <div class="content">اي معلومة تحصل عليها من خارج المدينة مثال معلومة حصلت عليها من بث او دسكورد او مقطع باليوتيوب كلها تعتبر مخالفة</div>
+        </div>
+
+        <div class="rule" data-key="rdm">
+          <div class="head"><div class="title">القتل العشوائي - RDM</div><div class="plus">+</div></div>
+          <div class="content">قتل الأشخاص دون سبب, تهديد, بصورة عشوائية او بدون عداوة يعتبر القتل العشوائي ممنوع ومخالف للنظام العام للسيرفر.</div>
+        </div>
+
+        <div class="rule" data-key="nwl">
+          <div class="head"><div class="title">قانون تقدير الحياة - NWL</div><div class="plus">+</div></div>
+          <div class="content">هي الحفاظ على حياتك وحياة الآخرين، وعدم التهور، وأن لا تستهين بقتل الأشخاص، وأن لا تقاوم المجرم أو الشرطة او اي شحص يحمل سلاح مهما كان خصوصاُ اذا كنت أعزل، وهذا لا يمنع استعمال حق الدفاع عن النفس عند الضرورة التي تمنعك من طلب مساعدة الشرطة، وبكل الأحوال يجب محاورة اللاعب بشكل جيد والتفاوض معه قبل الشروع بأي عمل يعرض حياة اللاعب الآخر للخطر.</div>
+        </div>
+
+        <div class="rule" data-key="general">
+          <div class="head"><div class="title">القوانين العامة</div><div class="plus">+</div></div>
+          <div class="content">
+✦ العمر المسموح لدخول السيرفر: 18 سنة فما فوق.
+<br>
+<br>
+✦ ممنوع استخدام أي شخصية افتراضية إلا من خلال المتجر فقط.
+<br>
+<br>
+✦ ممنوع كتابة أسمك باللغة الإنجليزية (Ahmed Mohammed) او برموز (احمــــد محمد!) او تشكيل (أحّمْدُ مُحَمّدً) او يكون اسم شخصيه مشهوره (بابلو اسكوبار)
+<br>
+<br>
+✦ يمنع الدخول من أجهزة غير جهازك الشخصي (مثل مقاهي الإنترنت أو مراكز الألعاب).
+<br>
+<br>
+✦ يحق لك امتلاك شخصية واحدة فقط، وفي حال تغيير شخصيتك من إجرامية إلى عسكرية:
+<br>
+<br>
+<h3>*يجب أن يمر 14 أيام بدون أي نشاط إجرامي.</h3>
+🔺يتم الاحتفاظ بالسجل الجنائي أو تسليم نفسك للقضاء.
+<br>
+🔺إذا كانت القضايا كبيرة وتؤدي إلى حكم بالإعدام، يتم إعدام الشخصية.
+<br>
+🔺لا يمكن دخول العسكرية إلا بعد مرور 20 يوم من التوقف عن الإجرام.
+<br>
+🔺 إذا كان العكس (من عسكري إلى مدني/مجرم) يجب تقديم استقالة رسمية.
+<br>
+<br>
+<h3>اللعب والبث</h3>
+✦ ممنوع الستريم سنايب أو متابعة البثوث أثناء اللعب (عقوبتها شديدة).
+<br>
+<br>
+✦ ممنوع التواجد في الديسكورد أو التواصل الخارجي مع لاعبين آخرين أثناء اللعب.
+<br>
+<br>
+<h3>🧑🏾‍💼 القوانين العامة داخل السيرفر</h3>
+<br>
+<br>
+✦ ممنوع الاعتداء على البوتات (يعتبرون مواطنين).
+<br>
+<br>
+✦ ممنوع طلب تعويض عند خسارة أموالك أو أغراضك بسبب التحلل أو المستشفى.
+<br>
+<br>
+✦ ممنوع الكتابة خارج “الرول بلاي” في تطبيق تويتر، ويمكن الكتابة فقط في الأمور الداخلة في إطار التمثيل وتقمص الشخصيات والسيناريوهات والأمور المكملة لها.
+<br>
+<br>
+✦ لا يحق لك الدخول في أحداث كبيرة مثلا ( بيع وشراء ) إلا إذا كان بينكم معرفة رول بلاي لمدة لا تقل عن أسبوع.
+<br>
+<br>
+✦ يمنع القذف، الشتم، الطائفية، السياسة، الدين، أو القبلية (العقوبة: باند نهائي).
+<br>
+<br>
+✦ يمنع استخدام كلمات غير مفهومة، مشفرة، أو سب مبطن.
+<br>
+<br>
+✦ يمنع استغلال خدمات الجوال (مثل طلب تاكسي أو خدمات) بهدف الخطف أو القتل.
+<br>
+<br>
+✦ يمنع توزيع مبالغ مالية كبيرة (10 آلاف فأكثر) إلا إذا كان بينكم معرفة لا تقل عن أسبوع.
+<br>
+<br>
+✦ يمنع مشاركة أي من حساباتك أو معلوماتك الشخصية (سناب، إنستا، ستيم، ديسكورد... إلخ) مع أي شخص (العقوبة: باند نهائي).
+<br>
+<br>
+✦ يمنع حمل شخصين في نفس الوقت (حمل + سحب) مهما كانت الأسباب.
+<br>
+<br>
+<h3>🚗 القيادة</h3>
+<br>
+<br>
+✦ القيادة يجب أن تكون واقعية:
+<br>
+<br>
+✦ لا سرعة مفرطة بدون سبب.
+<br>
+<br>
+✦ لا قطع إشارات عشوائي.
+<br>
+<br>
+✦ لا تهور بدون داعٍ.
+<br>
+<br>
+✦ مخالفة هذه القوانين = تحذير Power Gaming أو باند.
+<br>
+<br>
+✦ يمنع استخدام حركه رفع الدباب و النط من أي مكان سواء الأرصفة القصيرة و ذلك يتضمن ( الجسور - الجدران - المباني - العوائق التي تجعل الدباب يرتفع الى السماء )
+</div>
+        </div>
+
+        <div class="rule" data-key="crime">
+          <div class="head"><div class="title">قوانين الإجرام</div><div class="plus">+</div></div>
+          <div class="content">قوانين الإجرام العامة
+
+✦ ممنوع ملاحقة العساكر بغرض المضايقات أو التدخل في عملهم أو الترصد لهم وبناء عداوة معهم.
+<br>
+<br>
+✦ يمنع منعاً باتاً التحلل أو الخروج من المدينة إلا بعد مرور 15 دقيقة من انتهاء السيناريو.
+<br>
+<br>
+✦ العداوة: يمنع تكوين عداوة لأسباب بسيطة مثل:
+<br>
+<br>
+✦ مشادة كلامية وضرب بالأيدي.
+<br>
+<br>
+✦ حادث بسيط بالسيارة.
+<br>
+<br>
+✦ خطف بدون سبب منطقي.
+<br>
+<br>
+✦ في هذه الحالات يجب التوجه لمركز الشرطة ورفع شكوى أو بلاغ واستكمال الرول بلاي.
+<br>
+<br>
+✦ ممنوع الدخول في أي سيناريو إلا إذا كانت بينكم معرفة رول بلاي لمدة لا تقل عن أسبوع.
+<br>
+<br>
+✦ يمنع طلب الخدمات المتاحة بالجوال (مثل التاكسي أو الإسعاف) بقصد الخطف أو القتل أو السرقة.
+<br>
+<br>
+✦ في حال رفع شخص عليك سلاحاً (ناري أو أبيض) يجب عليك الاستسلام الكامل. حتى إذا كان هناك مخالفة، يجب عليك مجاراة السيناريو حتى النهاية.
+<br>
+<br>
+✦ يمنع خطف أي شخص في مكان عام أو مزدحم؛ يجب سحب الهدف إلى مكان خالٍ أولاً.
+<br>
+<br>
+✦ يمنع خطف أو أخذ رهينة من بين معارفك (سواء كانوا أصدقاء أو من نفس العصابة). يجب أن تكون الرهينة شخصاً غريباً عنك.
+<br>
+<br>
+✦ ممنوع منعاً باتاً قتل الأشخاص في حال كانوا ينفذون الأوامر.
+<br>
+<br>
+<h3>✦ يسمح بالسرقة في الأماكن المشبوهة مثل:</h3>
+🔺مناطق بيع الكوكايين.
+<br>
+🔺الجزيرة.
+<br>
+🔺أماكن بيع القروش.
+<br>
+✦ وغيرها من الأماكن ذات النشاط الإجرامي.
+(بعد تهديد الأشخاص فقط).
+<br>
+<br>
+✦ مسموح بالترصد في الأماكن المشبوهة ما عدا العيادات الخاصة.
+<br>
+<br>
+✦ إذا أسقطت عسكري أو مجرم في سيناريو (سرقة أو غيره) يمنع نقله للمستشفى بعد انتهاء الفايت إلا إذا كان الشخص من عصابتك أو مجموعتك.
+<br>
+<br>
+✦ عند تبادل إطلاق النار بين طرفين يمنع حمل شخص بيدك أثناء الاشتباك، يجب إنزاله أولاً ثم يمكنك المشاركة في القتال.
+<br>
+<br>
+✦ ممنوع إعطاء أي معلومات إجرامية أو تفاصيل حساسة عن نشاطات العصابة للغرباء إلا بعد معرفة تتجاوز أسبوع كامل.
+<br>
+<br>
+✦ يحق للمواطن سرقة العسكري في الحالات التالية:
+<br>
+<br>
+✦ أثناء سيناريو سرقة البنوك (لا يشمل سرقة المجوهرات والأقل منها).
+<br>
+<br>
+✦ في حال وجود عداوة سابقة (بشرط ألا تكون بسبب قيام العسكري بمهامه).
+<br>
+<br>
+✦ إذا تمت مداهمة حارة عصابة من قبل الشرطة، يحق للعصابة سرقة العساكر داخل الحارة.
+<br>
+
+ــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ
+
+
+🥷🏽 العداوة والسرقة
+<br>
+<br>
+✦ يحق لك سرقة مواطن فقط إذا كانت هناك عداوة واضحة.
+<br>
+<br>
+✦ يمنع تكوين عداوة لأسباب تافهة (مثل مشادة كلامية أو حادث سيارة بسيط).
+<br>
+<br>
+✦ في حال حدوث مشكلة، يجب رفع بلاغ للشرطة واستكمال الرول بلاي.
+<br>
+<br>
+✦ يمنع الخطف في الأماكن العامة أو أمام العلن أو في مواقع الوظائف (المستشفى، الحجز، النفايات، إلخ).
+<br>
+<br>
+<h3>✦ ممنوع منعاً باتاً:</h3>
+🔺السرقة العشوائية.
+<br>
+🔺أخذ رهائن من المعارف أو الأصدقاء (يجب أن تكون رهينة غريبة).
+<br>
+🔺قتل الأشخاص أثناء تنفيذهم للأوامر.
+<br>
+
+ــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــــ
+
+
+🧠 النسيان وإنهاء العداوة
+
+(جاري تحديث القسم) ⌛️</div>
+        </div>
+
+        <div class="rule" data-key="shifts">
+          <div class="head"><div class="title">نظام الورديات</div><div class="plus">+</div></div>
+          <div class="content">الالتزام بمواعيد الورديات والمهام المطلوبة أثناءها واجب. التغيّب دون إبلاغ يؤثر على تقييم العضو.</div>
+        </div>
+
+        <div class="rule" data-key="police">
+          <div class="head"><div class="title">قوانين الشرطة</div><div class="plus">+</div></div>
+          <div class="content">الشرطة ملزمة بالحياد والاحترافية؛ يمنع استغلال الصلاحيات أو التلاعب بالأنظمة. أي إساءة للسلطة ستؤدي لعقوبات صارمة.</div>
+        </div>
+
+        <div class="rule" data-key="ems">
+          <div class="head"><div class="title">قوانين الإسعاف</div><div class="plus">+</div></div>
+          <div class="content">فِرَق الإسعاف تتبع قواعد طبية محددة؛ يمنع التصرف خارج نطاق المهمة أو استخدام الوظيفة لأغراض شخصية.</div>
+        </div>
+
+        <div class="rule" data-key="gangs">
+          <div class="head"><div class="title">قوانين العصابات</div><div class="plus">+</div></div>
+          <div class="content">العصابات تعمل ضمن قواعد محددة مع احترام حدود المناطق والتعامل وفقًا لاتفاقيات اللعبة؛ الاعتداء على المدنيين بلا سبب ممنوع.</div>
+        </div>
+
+        <div class="rule" data-key="justice">
+          <div class="head"><div class="title">قوانين العدل</div><div class="plus">+</div></div>
+          <div class="content">القضاء والعدل يجب أن يُمارسا بنزاهة؛ أي استغلال للمنطقة القضائية أو التحيز يمنع ويتم التعامل معه إدارياً.</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- APPLY -->
+    <section id="apply" class="section">
+      <h2 style="text-align:center;color:var(--accent-a)">نموذج التقديم الإلكتروني</h2>
+
+      <div class="apply-box">
+        <form id="applyForm">
+          <div class="field">
+            <label>شرفنا باسمك وعمرك الحقيقيين؟ *</label>
+            <input type="text" id="realName" placeholder="الاسم الحقيقي وعمرك">
+          </div>
+
+          <div class="field">
+            <label>اسم الشخصية الأول والأخير وتاريخ ميلادها والمنشئ واللغة الخاصة بالشخصية؟ *</label>
+            <input type="text" id="charInfo" placeholder="اسم الشخصية - تاريخ الميلاد - المنشئ - اللغة">
+          </div>
+
+          <div class="field">
+            <label>ماهي قصة الشخصية؟ (لا تقل عن 5 أسطر ولا تزيد عن 10 أسطر) * <span class="small">(راجع دليل كتابة القصة قبل الإرسال)</span></label>
+            <textarea id="story" placeholder="اكتب قصة شخصيتك هنا..."></textarea>
+            <div id="storyHint" class="small">الحد الأدنى: 5 أسطر — الحد الأقصى: 10 أسطر</div>
+          </div>
+
+          <div class="field">
+            <label>ماهي إيجابيات وسلبيات الشخصية من القصة؟ *</label>
+            <textarea id="prosCons" placeholder="أذكر نقاط القوة والضعف لشخصيتك"></textarea>
+          </div>
+
+          <div class="field">
+            <label>هل لديك خبرة سابقة في تقمص الشخصيات؟ اكتب عنها بالتفصيل *</label>
+            <textarea id="experience" placeholder="اكتب خبراتك السابقة بالتفصيل"></textarea>
+          </div>
+
+          <div class="field">
+            <label>ماهو سبب رغبتك في دخول المدينة؟ *</label>
+            <textarea id="reasonCity" placeholder="لماذا تريد الانضمام للمدينة؟"></textarea>
+          </div>
+
+          <hr style="border:0;border-top:1px solid rgba(255,255,255,0.03);margin:14px 0">
+
+          <div class="field">
+            <label>لقد تورطت في الجريمة مع مجموعة من الأشخاص... ماذا ستفعل؟ *</label>
+            <textarea id="q1" placeholder="اشرح رد فعلك وكيف تبرره"></textarea>
+          </div>
+
+          <div class="field">
+            <label>رأيت موظف مطعم يتعرض للسرقة — ما العمل؟ *</label>
+            <textarea id="q2" placeholder="ماذا ستفعل وكيف تتصرف؟"></textarea>
+          </div>
+
+          <div class="field">
+            <label>انت مدان بعصابة بمبلغ كبير ولا يمكن السداد في الوقت المحدد — الطرق القانونية لتوفير المبلغ؟ *</label>
+            <textarea id="q3" placeholder="اشرح الطرق القانونية التي ستلجأ إليها"></textarea>
+          </div>
+
+          <div class="field">
+            <label>حملت سلاحًا ووجدت أن الرهينة ذو سلطة إجرامية — ماذا تفعل؟ *</label>
+            <textarea id="q4" placeholder="اشرح تصرفك بالتفصيل"></textarea>
+          </div>
+
+          <div style="text-align:center;margin-top:10px">
+            <button type="submit" class="btn">إرسال التقديم</button>
+            <div class="small" style="margin-top:8px;color:rgba(255,255,255,0.6)">سيتم إرسال التقديم إلى فريق الإدارة في ديسكورد.</div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>© 2025 Secret CFW — جميع الحقوق محفوظة</footer>
+
+  <script>
+    /* ---------- NAV + SECTION SWITCH ---------- */
+    function openSection(id){
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    // set initial active = home
+    document.querySelectorAll('.section').forEach(s=> s.classList.remove('active'));
+    document.getElementById('home').classList.add('active');
+
+    /* ---------- ACCORDION for rules ---------- */
+    document.querySelectorAll('.rule .head').forEach(head=>{
+      head.addEventListener('click', ()=> {
+        const parent = head.parentElement;
+        parent.classList.toggle('open');
+      });
+    });
+
+    /* ---------- FORM validation & webhook submit ---------- */
+    const applyForm = document.getElementById('applyForm');
+
+    // IMPORTANT: ضع رابط الويبهوك هنا لو أردت الإرسال إلى ديسكورد
+    const webhookURL = "ضع_رابط_الويبهوك_هنا"; // <-- استبدل هذه السلسلة برابط الويبهوك الآمن لديك
+
+    function countLines(text){
+      // consider non-empty lines
+      return text.split(/\r?\n/).filter(l => l.trim().length>0).length;
+    }
+
+    applyForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+
+      // gather values
+      const data = {
+        realName: document.getElementById('realName').value.trim(),
+        charInfo: document.getElementById('charInfo').value.trim(),
+        story: document.getElementById('story').value.trim(),
+        prosCons: document.getElementById('prosCons').value.trim(),
+        experience: document.getElementById('experience').value.trim(),
+        reasonCity: document.getElementById('reasonCity').value.trim(),
+        q1: document.getElementById('q1').value.trim(),
+        q2: document.getElementById('q2').value.trim(),
+        q3: document.getElementById('q3').value.trim(),
+        q4: document.getElementById('q4').value.trim(),
+      };
+
+      // basic validation
+      if(!data.realName || !data.charInfo || !data.story || !data.prosCons || !data.experience || !data.reasonCity || !data.q1 || !data.q2 || !data.q3 || !data.q4){
+        alert('يرجى ملء كل الحقول المطلوبة قبل الإرسال.');
+        return;
+      }
+
+      // story must be 5-10 non-empty lines
+      const lines = countLines(data.story);
+      if(lines < 5 || lines > 10){
+        alert('قصة الشخصية يجب أن تحتوي على 5 إلى 10 أسطر (سطر = سطر غير فارغ). حالياً: ' + lines);
+        return;
+      }
+
+      // prepare payload for Discord webhook (embed)
+      if(webhookURL === ""){
+        // user didn't set webhook — just show confirm and print JSON to console
+        alert('لم تقم بوضع رابط الويبهوك في الكود. انسخ رابط الويبهوك وضعه في المتغير webhookURL ثم أعد المحاولة.');
+        console.log('تجهيز بيانات التقديم (لم يتم إرسالها لأن الويبهوك لم يُضبط):', data);
+        return;
+      }
+
+      const embed = {
+        title: "تقديم جديد — Secret CFW",
+        color: 5814783,
+        fields: [
+          { name: "👤 الاسم الحقيقي:", value: data.realName },
+          { name: "🧑‍🎭 معلومات الشخصية:", value: data.charInfo },
+          { name: "📖 قصة الشخصية:", value: data.story.slice(0, 1024) },
+          { name: "⚖️ إيجابيات/سلبيات:", value: data.prosCons.slice(0, 1024) },
+          { name: "🛠 خبرات سابقة:", value: data.experience.slice(0,1024) },
+          { name: "🏙 سبب الدخول للمدينة:", value: data.reasonCity.slice(0,1024) },
+          { name: "❓ موقف: التورط بالجريمة وطلب الضابط:", value: data.q1.slice(0,1024) },
+          { name: "❓ موقف: سرقة موظف المطعم:", value: data.q2.slice(0,1024) },
+          { name: "❓ موقف: الدين وعدم السداد:", value: data.q3.slice(0,1024) },
+          { name: "❓ موقف: رهينة ذو سلطة إجرامية:", value: data.q4.slice(0,1024) },
+        ],
+        footer: { text: "Secret CFW | نظام التقديم" },
+        timestamp: new Date().toISOString()
+      };
+
+      try{
+        const res = await fetch(webhookURL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ embeds: [embed] })
+        });
+
+        if(res.ok){
+          alert('✅ تم إرسال التقديم بنجاح! سيتواصل معك الطاقم إذا تم القبول.');
+          applyForm.reset();
+          openSection('home');
+        } else {
+          alert('❌ فشل إرسال التقديم. تحقق من رابط الويبهوك أو صلاحياته.');
+          console.error('discord response status', res.status, await res.text());
+        }
+      }catch(err){
+        alert('⚠️ حدث خطأ أثناء الإرسال. افتح الكونسول للمزيد.');
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>
